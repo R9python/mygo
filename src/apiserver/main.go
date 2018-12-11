@@ -19,9 +19,15 @@ import (
 // 	log.Fatal(http.ListenAndServe(":8080", nil))
 // }
 
-func main() {
-	r := mux.NewRouter()
+var logger *zap.Logger
 
+func main() {
+
+	//----- 日志 -----
+	logger = InitLogger("./api.log")
+
+	//----- 路由 -----
+	r := mux.NewRouter()
 	r.HandleFunc("/", YourHandler)
 	r.HandleFunc("/articles/{category}/", ArticlesCategoryHandler)
 	r.HandleFunc("/articles/{category}/{id:[0-9]+}", ArticleHandler)
@@ -70,6 +76,14 @@ func main() {
 	// url, err := r.Get("article").URL("category", "technology", "id", "42")
 	// //上面的等同于"/articles/technology/42"
 
+	logger.Info("logger construction succeeded")
+
+	fmt.Println("api server startup ok! port: 8080")
+
+	log.Fatal(http.ListenAndServe(":8080", r))
+}
+
+func InitLogger(logfile string) *zap.Logger {
 	//日志框架uber-go/zap
 	//日志框架的配置
 	rawJSON := []byte(`{
@@ -90,19 +104,17 @@ func main() {
 		panic(err)
 	}
 
-	logger, err := cfg.Build()
+	var err error
+	logger, err = cfg.Build()
 	if err != nil {
 		panic(err)
 	}
 	defer logger.Sync()
-
-	logger.Info("logger construction succeeded")
-
-	fmt.Println("api server startup ok! port: 8080")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	return logger
 }
 
 func YourHandler(w http.ResponseWriter, r *http.Request) {
+	logger.Info("hello, go!\n")
 	fmt.Println("hello, golang!\n")
 	w.Write([]byte("hello, golang!\n"))
 }
