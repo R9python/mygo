@@ -11,7 +11,7 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# 
+# folder
 src/github.com/*
 src/go.uber.org/*
 src/golang.org/*
